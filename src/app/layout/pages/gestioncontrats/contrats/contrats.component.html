@@ -1,0 +1,388 @@
+<div class="card">
+      <div class="card-header">
+        <div class="flex items-center justify-between">
+          <h2 class="card-title">Gestion des Contrats d'Assurance</h2>
+          <button class="continue-btn contrats-btn primary" (click)="showAddModal = true;">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+            </svg>
+            Nouveau Contrat
+          </button>
+        </div>
+      </div>
+      
+      <div class="card-body form-section" >
+        <div class="form-container">
+            <!-- Filtres de recherche -->
+                <div class="flex gap-6 mb-8">
+                <div class="form-group" style="flex: 1;">
+                    <label class="form-label">Recherche</label>
+                    <input 
+                    type="text" 
+                    class="form-input" 
+                    placeholder="Numéro, client, description..."
+                    [(ngModel)]="filters.search"
+                    (input)="onSearchChange()">
+                </div>
+                
+                <div class="form-group" style="min-width: 180px;">
+                    <label class="form-label">Type d'assurance</label>
+                    <select class="form-input" [(ngModel)]="filters.typeAssurance" (change)="onSearchChange()">
+                    <option value="">Tous les types</option>
+                    <option value="auto">Automobile</option>
+                    <option value="habitation">Habitation</option>
+                    <option value="sante">Santé</option>
+                    <option value="vie">Vie</option>
+                    <option value="professionnelle">Professionnelle</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="min-width: 150px;">
+                    <label class="form-label">Statut</label>
+                    <select class="form-input" [(ngModel)]="filters.statut" (change)="onSearchChange()">
+                    <option value="">Tous les statuts</option>
+                    <option value="actif">Actif</option>
+                    <option value="suspendu">Suspendu</option>
+                    <option value="expire">Expiré</option>
+                    <option value="annule">Annulé</option>
+                    </select>
+                </div>
+                </div>
+
+                <!-- Tableau des contrats -->
+                <div *ngIf="loading" class="text-center py-12">
+                <div class="loading-spinner mx-auto mb-4"></div>
+                <p class="text-gray-500 font-medium">Chargement des contrats...</p>
+                </div>
+
+                <div *ngIf="!loading" class="table-container">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Numéro</th>
+                        <th>Client</th>
+                        <th>Type</th>
+                        <th>Période</th>
+                        <th>Prime</th>
+                        <th>Statut</th>
+                        <th style="text-align: center;">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr *ngFor="let contrat of contrats">
+                        <td class="font-mono">{{ contrat.numero }}</td>
+                        <td>{{ contrat.client }}</td>
+                        <td>
+                        <span class="status-badge" [ngClass]="'type-' + contrat.typeAssurance">
+                            {{ getTypeLabel(contrat.typeAssurance) }}
+                        </span>
+                        </td>
+                        <td class="text-sm">
+                        {{ contrat.dateDebut | date:'dd/MM/yyyy' }} - 
+                        {{ contrat.dateFin | date:'dd/MM/yyyy' }}
+                        </td>
+                        <td class="font-semibold">{{ contrat.montantPrime | currency:'EUR' }}</td>
+                        <td>
+                        <span [class]="'status-badge status-' + contrat.statut">
+                            <span [style.width.px]="8" [style.height.px]="8" 
+                                [style.background-color]="getStatusColor(contrat.statut)"
+                                style="border-radius: 50%; display: inline-block; margin-right: 4px;">
+                            </span>
+                            {{ contrat.statut | titlecase }}
+                        </span>
+                        </td>
+                        <td>
+                        <div class="flex gap-1 justify-center">
+                            <button class="btn btn-sm btn-secondary" (click)="viewContrat(contrat)">
+                            <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
+                                <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
+                            </svg>
+                            </button>
+                            <button class="btn btn-sm btn-warning" (click)="editContrat(contrat)">
+                            <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708L10.5 8.207l-3-3L12.146.146zM11.207 9l-3-3-6.646 6.646a.5.5 0 0 0-.146.354v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .354-.146L11.207 9zM4 15.5A1.5 1.5 0 0 1 2.5 14v-3A1.5 1.5 0 0 1 4 9.5h3a.5.5 0 0 1 0 1H4a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 1 0 1H4z"/>
+                            </svg>
+                            </button>
+                            <button class="btn btn-sm btn-error" (click)="deleteContrat(contrat)">
+                            <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                            </svg>
+                            </button>
+                        </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination" *ngIf="!loading && totalPages > 1">
+                <button [disabled]="filters.page === 1" (click)="changePage(filters.page - 1)">
+                    Précédent
+                </button>
+                <button 
+                    *ngFor="let page of getPageNumbers()" 
+                    [class.active]="page === filters.page"
+                    (click)="changePage(page)">
+                    {{ page }}
+                </button>
+                <button [disabled]="filters.page === totalPages" (click)="changePage(filters.page + 1)">
+                    Suivant
+                </button>
+                </div>
+            </div>
+        </div>
+       
+    </div>
+
+    <!-- Modal d'ajout/modification -->
+    <div class="modal-overlay" *ngIf="showAddModal || showEditModal" (click)="closeModals()">
+      <div class="flex" style="width: 95vw; height: 90vh; gap: 1.5rem;" (click)="$event.stopPropagation()">
+        <!-- Formulaire -->
+        <div class="modal" style="flex: 1; height: 100%; overflow-y: auto;">
+          <div class="card-header">
+            <h3 class="card-title">{{ editingContrat ? 'Modifier' : 'Nouveau' }} Contrat</h3>
+          </div>
+          <div class="card-body">
+            <form (ngSubmit)="submitContratForm()">
+              <div class="grid grid-cols-2 gap-4">
+                 <div class="form-group">
+                <label class="form-label">Client</label>
+                <select class="form-input" [(ngModel)]="contratForm.clientId" name="clientId" required>
+                  <option value="">Sélectionner un client</option>
+                  <option *ngFor="let client of clients" [value]="client.id">
+                    {{ client.prenom }} {{ client.nom }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Type d'assurance</label>
+                <select class="form-input" [(ngModel)]="contratForm.typeAssurance" name="typeAssurance" required>
+                  <option value="auto">Automobile</option>
+                  <option value="habitation">Habitation</option>
+                  <option value="sante">Santé</option>
+                  <option value="vie">Vie</option>
+                  <option value="professionnelle">Professionnelle</option>
+                </select>
+              </div>
+
+              </div>
+              
+              <div class="grid grid-cols-2 gap-4">
+                <div class="form-group">
+                  <label class="form-label">Date de début</label>
+                  <input 
+                    type="date" 
+                    class="form-input" 
+                    [(ngModel)]="contratForm.dateDebut" 
+                    name="dateDebut" 
+                    required>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label">Date de fin</label>
+                  <input 
+                    type="date" 
+                    class="form-input" 
+                    [(ngModel)]="contratForm.dateFin" 
+                    name="dateFin" 
+                    required>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div class="form-group">
+                  <label class="form-label">Montant de la prime (€)</label>
+                  <input 
+                    type="number" 
+                    step="0.01"
+                    class="form-input" 
+                    [(ngModel)]="contratForm.montantPrime" 
+                    name="montantPrime" 
+                    required>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label">Franchise (€)</label>
+                  <input 
+                    type="number" 
+                    step="0.01"
+                    class="form-input" 
+                    [(ngModel)]="contratForm.franchise" 
+                    name="franchise" 
+                    required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Statut</label>
+                <select class="form-input" [(ngModel)]="contratForm.statut" name="statut">
+                  <option value="actif">Actif</option>
+                  <option value="suspendu">Suspendu</option>
+                  <option value="expire">Expiré</option>
+                  <option value="annule">Annulé</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Description</label>
+                <textarea 
+                  class="form-input" 
+                  rows="3" 
+                  [(ngModel)]="contratForm.description" 
+                  name="description"
+                  placeholder="Description du contrat...">
+                </textarea>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Conditions</label>
+                <textarea 
+                  class="form-input" 
+                  rows="4" 
+                  [(ngModel)]="contratForm.conditions" 
+                  name="conditions"
+                  placeholder="Conditions du contrat...">
+                </textarea>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Document du contrat</label>
+                <div 
+                  class="file-upload-area"
+                  [class.dragover]="isDragging"
+                  (dragover)="onDragOver($event)"
+                  (dragleave)="onDragLeave($event)"
+                  (drop)="onDrop($event)"
+                  (click)="fileInput.click()">
+                  
+                  <input 
+                    #fileInput
+                    type="file" 
+                    style="display: none;"
+                    accept=".pdf,.doc,.docx"
+                    (change)="onFileSelected($event)">
+                  
+                  <div *ngIf="!selectedFile">
+                    <svg width="56" height="56" fill="currentColor" viewBox="0 0 16 16" class="mb-6" style="margin: 0 auto; color: #9ca3af;">
+                      <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                      <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/>
+                    </svg>
+                    <p class="font-medium text-gray-700 mb-2">Glisser-déposer un fichier ici ou cliquer pour sélectionner</p>
+                    <p class="text-sm text-gray-500">PDF, DOC, DOCX (max 10MB)</p>
+                  </div>
+                  
+                  <div *ngIf="selectedFile">
+                    <svg width="56" height="56" fill="currentColor" viewBox="0 0 16 16" class="mb-6" style="margin: 0 auto; color: #10b981;">
+                      <path d="M4 0h5.293A1 1 0 0 1 10 .293L13.707 4a1 1 0 0 1 .293.707V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm5.5 1.5v2a1 1 0 0 0 1 1h2l-3-3z"/>
+                    </svg>
+                    <p class="font-medium text-gray-900 mb-1">{{ selectedFile.name }}</p>
+                    <p class="text-sm text-gray-500">{{ (selectedFile.size / 1024 / 1024).toFixed(2) }} MB</p>
+                    <button type="button" class="continue-btn contrats-btn danger" (click)="removeFile(); $event.stopPropagation()">
+                      Supprimer
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex gap-4 pt-6">
+                <button type="submit" class="continue-btn contrats-btn primary"  [disabled]="submitting">
+                  {{ submitting ? 'Enregistrement...' : 'Enregistrer' }}
+                </button>
+                <button type="button"  class="continue-btn contrats-btn secondary" (click)="closeModals()">
+                  Annuler
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Zone de prévisualisation -->
+        <div class="modal preview-area" style="flex: 0 0 400px; height: 100%;">
+          <div class="card-header">
+            <h4 class="card-title">Prévisualisation</h4>
+          </div>
+          <div class="card-body" style="height: calc(100% - 60px); overflow-y: auto;">
+            <div *ngIf="!selectedFile" class="text-center text-gray-500 mt-16">
+              <svg width="64" height="64" fill="currentColor" viewBox="0 0 16 16" style="margin: 0 auto; margin-bottom: 1rem;">
+                <path d="M8.5 2.687c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492V2.687zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z"/>
+              </svg>
+              <p class="font-medium">Sélectionnez un document pour le prévisualiser</p>
+            </div>
+            
+            <div *ngIf="selectedFile && previewContent">
+              <h5 class="mb-6 font-semibold text-gray-800">{{ selectedFile.name }}</h5>
+              <div class="preview-content" [innerHTML]="previewContent"></div>
+            </div>
+            
+            <div *ngIf="selectedFile && !previewContent" class="text-center mt-8">
+              <p class="font-medium text-gray-700 mb-4">Prévisualisation non disponible pour ce type de fichier</p>
+              <div class="bg-gray-50 p-4 rounded-lg text-left">
+                <strong>Informations du fichier :</strong>
+                <p class="mt-2"><span class="font-medium">Nom:</span> {{ selectedFile.name }}</p>
+                <p><span class="font-medium">Taille:</span> {{ (selectedFile.size / 1024 / 1024).toFixed(2) }} MB</p>
+                <p><span class="font-medium">Type:</span> {{ selectedFile.type }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de visualisation -->
+    <div class="modal-overlay" *ngIf="showViewModal && selectedContrat" (click)="closeModals()">
+      <div class="modal" style="width: 900px; max-width: 95vw;" (click)="$event.stopPropagation()">
+        <div class="card-header">
+          <h3 class="card-title">Détails du Contrat</h3>
+        </div>
+        <div class="card-body">
+          <div class="grid grid-cols-2 gap-6">
+            <div>
+              <h4 class="mb-4">Informations générales</h4>
+              <div class="space-y-3">
+                <div><strong>Numéro:</strong> {{ selectedContrat.numero }}</div>
+                <div><strong>Client:</strong> {{ selectedContrat.client }}</div>
+                <div><strong>Type:</strong> {{ getTypeLabel(selectedContrat.typeAssurance) }}</div>
+                <div><strong>Statut:</strong> 
+                  <span [class]="'status-badge status-' + selectedContrat.statut">
+                    {{ selectedContrat.statut | titlecase }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <h4 class="mb-4">Détails financiers</h4>
+              <div class="space-y-3">
+                <div><strong>Prime:</strong> {{ selectedContrat.montantPrime | currency:'EUR' }}</div>
+                <div><strong>Franchise:</strong> {{ selectedContrat.franchise | currency:'EUR' }}</div>
+                <div><strong>Période:</strong> 
+                  {{ selectedContrat.dateDebut | date:'dd/MM/yyyy' }} - 
+                  {{ selectedContrat.dateFin | date:'dd/MM/yyyy' }}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mt-6" *ngIf="selectedContrat.description">
+            <h4 class="mb-2">Description</h4>
+            <p>{{ selectedContrat.description }}</p>
+          </div>
+          
+          <div class="mt-6" *ngIf="selectedContrat.conditions">
+            <h4 class="mb-2">Conditions</h4>
+            <p>{{ selectedContrat.conditions }}</p>
+          </div>
+
+          <div class="flex gap-4 mt-8 pt-4 border-t border-gray-100">
+            <button class="btn btn-secondary" (click)="closeModals()">Fermer</button>
+            <button class="btn btn-primary" *ngIf="selectedContrat.documentUrl">
+              Télécharger le contrat
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>

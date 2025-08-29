@@ -1,0 +1,17 @@
+{
+  "tenant": "assureur_cie_x",
+  "modules_activés": [
+    "clients",
+    "contrats",
+    "sinistres",
+    "paiements",
+    "statistiques"
+  ],
+  "branding": {
+    "logo": "assets/logos/cie_x_logo.png",
+    "couleurs": {
+      "primaire": "#005BAC",
+      "secondaire": "#F2A900"
+    }
+  }
+}

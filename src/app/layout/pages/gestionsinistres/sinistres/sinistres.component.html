@@ -1,0 +1,470 @@
+<div class="page-container">
+      <div class="page-header">
+        <div class="header-content">
+          <div class="header-title">
+            <div class="title-icon">
+              <svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.146.146 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.163.163 0 0 1-.054.06.116.116 0 0 1-.066.017H1.146a.115.115 0 0 1-.066-.017.163.163 0 0 1-.054-.06.176.176 0 0 1 .002-.183L7.884 2.073a.147.147 0 0 1 .054-.057zm1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566z"/>
+                <path d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995z"/>
+              </svg>
+            </div>
+            <div>
+              <h1>Gestion des Sinistres</h1>
+              <p>Suivi du cycle de vie complet des sinistres</p>
+            </div>
+          </div>
+          <button class="btn btn-primary" (click)="showAddModal = true; loadClients(); loadContrats()">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+            </svg>
+            Nouveau Sinistre
+          </button>
+        </div>
+      </div>
+
+      <div class="page-content">
+        <!-- Filtres de recherche -->
+        <div class="filters-section">
+          <div class="card">
+            <div class="card-body">
+              <div class="filters-grid">
+                <div class="form-group">
+                  <label class="form-label">Recherche</label>
+                  <input 
+                    type="text" 
+                    class="form-input" 
+                    placeholder="Numéro, client, description..."
+                    [(ngModel)]="filters.search"
+                    (input)="onSearchChange()">
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label">Statut</label>
+                  <select class="form-input" [(ngModel)]="filters.statut" (change)="onSearchChange()">
+                    <option value="">Tous les statuts</option>
+                    <option value="enregistre">Enregistré</option>
+                    <option value="transmis">Transmis</option>
+                    <option value="valide">Validé</option>
+                    <option value="regle">Réglé</option>
+                    <option value="cloture">Clôturé</option>
+                    <option value="rejete">Rejeté</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Type</label>
+                  <select class="form-input" [(ngModel)]="filters.typeSinistre" (change)="onSearchChange()">
+                    <option value="">Tous les types</option>
+                    <option value="auto">Automobile</option>
+                    <option value="habitation">Habitation</option>
+                    <option value="sante">Santé</option>
+                    <option value="vie">Vie</option>
+                    <option value="professionnelle">Professionnelle</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Priorité</label>
+                  <select class="form-input" [(ngModel)]="filters.priorite" (change)="onSearchChange()">
+                    <option value="">Toutes priorités</option>
+                    <option value="basse">Basse</option>
+                    <option value="normale">Normale</option>
+                    <option value="haute">Haute</option>
+                    <option value="urgente">Urgente</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Liste des sinistres -->
+        <div class="sinistres-section">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="section-title">Liste des Sinistres</h2>
+            </div>
+            <div class="card-body">
+              <div *ngIf="loading" class="text-center py-12">
+                <div class="loading-spinner mx-auto mb-4"></div>
+                <p class="text-gray-500 font-medium">Chargement des sinistres...</p>
+              </div>
+
+              <div *ngIf="!loading" class="table-container">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Numéro</th>
+                      <th>Client</th>
+                      <th>Type</th>
+                      <th>Date Sinistre</th>
+                      <th>Montant</th>
+                      <th>Priorité</th>
+                      <th>Statut</th>
+                      <th style="text-align: center;">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let sinistre of sinistres">
+                      <td class="font-mono">{{ sinistre.numeroSinistre }}</td>
+                      <td>{{ sinistre.clientPrenom }} {{ sinistre.clientNom }}</td>
+                      <td>
+                        <span [class]="'type-badge type-' + sinistre.typeSinistre">
+                          {{ getTypeLabel(sinistre.typeSinistre) }}
+                        </span>
+                      </td>
+                      <td>{{ sinistre.dateSinistre | date:'dd/MM/yyyy' }}</td>
+                      <td class="font-semibold">{{ sinistre.montantEstime | currency:'EUR' }}</td>
+                      <td>
+                        <span [class]="'priority-badge priority-' + sinistre.priorite">
+                          {{ sinistre.priorite | titlecase }}
+                        </span>
+                      </td>
+                      <td>
+                        <span [class]="'status-badge status-' + sinistre.statut">
+                          {{ getStatutLabel(sinistre.statut) }}
+                        </span>
+                      </td>
+                      <td>
+                        <div class="flex gap-1 justify-center">
+                          <button class="btn btn-sm btn-secondary" (click)="viewSinistre(sinistre)">
+                            <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                              <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
+                              <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
+                            </svg>
+                          </button>
+                          <button class="btn btn-sm btn-warning" (click)="editSinistre(sinistre)">
+                            <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                              <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708L10.5 8.207l-3-3L12.146.146zM11.207 9l-3-3-6.646 6.646a.5.5 0 0 0-.146.354v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .354-.146L11.207 9z"/>
+                            </svg>
+                          </button>
+                          <button class="btn btn-sm btn-primary" (click)="changerStatutSinistre(sinistre)">
+                            <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                              <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.061L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
+                            </svg>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Pagination -->
+              <div class="pagination" *ngIf="!loading && totalPages > 1">
+                <button [disabled]="filters.page === 1" (click)="changePage(filters.page - 1)">
+                  Précédent
+                </button>
+                <button 
+                  *ngFor="let page of getPageNumbers()" 
+                  [class.active]="page === filters.page"
+                  (click)="changePage(page)">
+                  {{ page }}
+                </button>
+                <button [disabled]="filters.page === totalPages" (click)="changePage(filters.page + 1)">
+                  Suivant
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal d'ajout/modification -->
+    <div class="modal-overlay" *ngIf="showAddModal || showEditModal" (click)="closeModals()">
+      <div class="modal" style="width: 900px; max-width: 95vw;" (click)="$event.stopPropagation()">
+        <div class="card-header">
+          <h3 class="card-title">{{ editingSinistre ? 'Modifier' : 'Nouveau' }} Sinistre</h3>
+        </div>
+        <div class="card-body">
+          <form (ngSubmit)="submitSinistreForm()">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="form-group">
+                <label class="form-label">Client</label>
+                <select class="form-input" [(ngModel)]="sinistreForm.clientId" name="clientId" required (change)="onClientChange()">
+                  <option value="">Sélectionner un client</option>
+                  <option *ngFor="let client of clients" [value]="client.id">
+                    {{ client.prenom }} {{ client.nom }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Contrat</label>
+                <select class="form-input" [(ngModel)]="sinistreForm.contratId" name="contratId" required>
+                  <option value="">Sélectionner un contrat</option>
+                  <option *ngFor="let contrat of contratsClient" [value]="contrat.id">
+                    {{ contrat.numero }} - {{ getTypeLabel(contrat.typeAssurance) }}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div class="form-group">
+                <label class="form-label">Date du sinistre</label>
+                <input 
+                  type="date" 
+                  class="form-input" 
+                  [(ngModel)]="sinistreForm.dateSinistre" 
+                  name="dateSinistre" 
+                  required>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Date de déclaration</label>
+                <input 
+                  type="date" 
+                  class="form-input" 
+                  [(ngModel)]="sinistreForm.dateDeclaration" 
+                  name="dateDeclaration" 
+                  required>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div class="form-group">
+                <label class="form-label">Type de sinistre</label>
+                <select class="form-input" [(ngModel)]="sinistreForm.typeSinistre" name="typeSinistre" required>
+                  <option value="auto">Automobile</option>
+                  <option value="habitation">Habitation</option>
+                  <option value="sante">Santé</option>
+                  <option value="vie">Vie</option>
+                  <option value="professionnelle">Professionnelle</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Nature du sinistre</label>
+                <input 
+                  type="text" 
+                  class="form-input" 
+                  [(ngModel)]="sinistreForm.natureSinistre" 
+                  name="natureSinistre"
+                  placeholder="Ex: Collision, Vol, Incendie..."
+                  required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Lieu du sinistre</label>
+              <input 
+                type="text" 
+                class="form-input" 
+                [(ngModel)]="sinistreForm.lieuSinistre" 
+                name="lieuSinistre"
+                placeholder="Adresse complète du sinistre"
+                required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Description</label>
+              <textarea 
+                class="form-input" 
+                rows="3" 
+                [(ngModel)]="sinistreForm.description" 
+                name="description"
+                placeholder="Description détaillée du sinistre..."
+                required>
+              </textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Circonstances</label>
+              <textarea 
+                class="form-input" 
+                rows="3" 
+                [(ngModel)]="sinistreForm.circonstances" 
+                name="circonstances"
+                placeholder="Circonstances détaillées de l'événement..."
+                required>
+              </textarea>
+            </div>
+
+            <div class="grid grid-cols-3 gap-4">
+              <div class="form-group">
+                <label class="form-label">Montant estimé (€)</label>
+                <input 
+                  type="number" 
+                  step="0.01"
+                  class="form-input" 
+                  [(ngModel)]="sinistreForm.montantEstime" 
+                  name="montantEstime" 
+                  required>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Franchise (€)</label>
+                <input 
+                  type="number" 
+                  step="0.01"
+                  class="form-input" 
+                  [(ngModel)]="sinistreForm.franchise" 
+                  name="franchise" 
+                  required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Priorité</label>
+                <select class="form-input" [(ngModel)]="sinistreForm.priorite" name="priorite">
+                  <option value="basse">Basse</option>
+                  <option value="normale">Normale</option>
+                  <option value="haute">Haute</option>
+                  <option value="urgente">Urgente</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="flex gap-4 pt-6">
+              <button type="submit" class="btn btn-primary" [disabled]="submitting">
+                {{ submitting ? 'Enregistrement...' : 'Enregistrer' }}
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="closeModals()">
+                Annuler
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de changement de statut -->
+    <div class="modal-overlay" *ngIf="showStatutModal" (click)="closeModals()">
+      <div class="modal" style="width: 600px; max-width: 95vw;" (click)="$event.stopPropagation()">
+        <div class="card-header">
+          <h3 class="card-title">Changer le Statut</h3>
+        </div>
+        <div class="card-body">
+          <div class="mb-6">
+            <p><strong>Sinistre:</strong> {{ selectedSinistre?.numeroSinistre }}</p>
+            <p><strong>Statut actuel:</strong> {{ getStatutLabel(selectedSinistre?.statut || '') }}</p>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Nouveau statut</label>
+            <select class="form-input" [(ngModel)]="nouveauStatut">
+              <option value="">Sélectionner un statut</option>
+              <option *ngFor="let statut of getStatutsDisponibles(selectedSinistre?.statut || '')" [value]="statut.value">
+                {{ statut.label }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group" *ngIf="nouveauStatut === 'valide'">
+            <label class="form-label">Expert</label>
+            <select class="form-input" [(ngModel)]="expertSelectionne">
+              <option value="">Sélectionner un expert</option>
+              <option *ngFor="let expert of experts" [value]="expert.id">
+                {{ expert.prenom }} {{ expert.nom }} - {{ expert.specialite }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Commentaire</label>
+            <textarea 
+              class="form-input" 
+              rows="3" 
+              [(ngModel)]="commentaireStatut"
+              placeholder="Commentaire sur le changement de statut...">
+            </textarea>
+          </div>
+
+          <div class="flex gap-4 pt-4">
+            <button class="btn btn-primary" (click)="confirmerChangementStatut()" [disabled]="!nouveauStatut || submitting">
+              {{ submitting ? 'Traitement...' : 'Confirmer' }}
+            </button>
+            <button class="btn btn-secondary" (click)="closeModals()">
+              Annuler
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de visualisation -->
+    <div class="modal-overlay" *ngIf="showViewModal && selectedSinistre" (click)="closeModals()">
+      <div class="modal" style="width: 1000px; max-width: 95vw;" (click)="$event.stopPropagation()">
+        <div class="card-header">
+          <h3 class="card-title">Détails du Sinistre</h3>
+        </div>
+        <div class="card-body">
+          <div class="grid grid-cols-2 gap-6">
+            <div>
+              <h4 class="mb-4">Informations générales</h4>
+              <div class="space-y-3">
+                <div><strong>Numéro:</strong> {{ selectedSinistre.numeroSinistre }}</div>
+                <div><strong>Client:</strong> {{ selectedSinistre.clientPrenom }} {{ selectedSinistre.clientNom }}</div>
+                <div><strong>Contrat:</strong> {{ selectedSinistre.numeroContrat }}</div>
+                <div><strong>Type:</strong> {{ getTypeLabel(selectedSinistre.typeSinistre) }}</div>
+                <div><strong>Nature:</strong> {{ selectedSinistre.natureSinistre }}</div>
+                <div><strong>Statut:</strong> 
+                  <span [class]="'status-badge status-' + selectedSinistre.statut">
+                    {{ getStatutLabel(selectedSinistre.statut) }}
+                  </span>
+                </div>
+                <div><strong>Priorité:</strong> 
+                  <span [class]="'priority-badge priority-' + selectedSinistre.priorite">
+                    {{ selectedSinistre.priorite | titlecase }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <h4 class="mb-4">Détails financiers</h4>
+              <div class="space-y-3">
+                <div><strong>Montant estimé:</strong> {{ selectedSinistre.montantEstime | currency:'EUR' }}</div>
+                <div *ngIf="selectedSinistre.montantExpertise"><strong>Montant expertise:</strong> {{ selectedSinistre.montantExpertise | currency:'EUR' }}</div>
+                <div *ngIf="selectedSinistre.montantReglement"><strong>Montant réglé:</strong> {{ selectedSinistre.montantReglement | currency:'EUR' }}</div>
+                <div><strong>Franchise:</strong> {{ selectedSinistre.franchise | currency:'EUR' }}</div>
+                <div><strong>Date sinistre:</strong> {{ selectedSinistre.dateSinistre | date:'dd/MM/yyyy' }}</div>
+                <div><strong>Date déclaration:</strong> {{ selectedSinistre.dateDeclaration | date:'dd/MM/yyyy' }}</div>
+                <div *ngIf="selectedSinistre.expertNom"><strong>Expert:</strong> {{ selectedSinistre.expertNom }}</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mt-6">
+            <h4 class="mb-2">Lieu du sinistre</h4>
+            <p>{{ selectedSinistre.lieuSinistre }}</p>
+          </div>
+          
+          <div class="mt-6">
+            <h4 class="mb-2">Description</h4>
+            <p>{{ selectedSinistre.description }}</p>
+          </div>
+          
+          <div class="mt-6">
+            <h4 class="mb-2">Circonstances</h4>
+            <p>{{ selectedSinistre.circonstances }}</p>
+          </div>
+
+          <div class="mt-6" *ngIf="selectedSinistre.historique && selectedSinistre.historique.length > 0">
+            <h4 class="mb-4">Historique</h4>
+            <div class="space-y-2">
+              <div *ngFor="let entree of selectedSinistre.historique" class="bg-gray-50 p-3 rounded">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <strong>{{ entree.action }}</strong>
+                    <p class="text-sm text-gray-600">{{ entree.commentaire }}</p>
+                  </div>
+                  <div class="text-right text-sm text-gray-500">
+                    <div>{{ entree.utilisateur }}</div>
+                    <div>{{ entree.date | date:'dd/MM/yyyy HH:mm' }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex gap-4 mt-8 pt-4 border-t border-gray-100">
+            <button class="btn btn-secondary" (click)="closeModals()">Fermer</button>
+            <button class="btn btn-primary" (click)="editSinistre(selectedSinistre); showViewModal = false">
+              Modifier
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>

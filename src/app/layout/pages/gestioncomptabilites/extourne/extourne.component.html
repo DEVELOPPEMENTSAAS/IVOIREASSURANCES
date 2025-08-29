@@ -1,0 +1,211 @@
+ <div class="page-container">
+      <div class="page-header">
+        <div class="header-content">
+          <div class="header-title">
+            <div class="title-icon">
+              <svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+              </svg>
+            </div>
+            <div>
+              <h1>Extourne de Reçu</h1>
+              <p>Annulation et correction d'opérations de caisse</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-content">
+        <!-- Section de recherche -->
+        <div class="search-section">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="section-title">Rechercher un Reçu</h2>
+            </div>
+            <div class="card-body">
+              <form (ngSubmit)="rechercherRecu()" class="search-form">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Numéro de Pièce *</label>
+                    <input 
+                      type="text" 
+                      class="form-input"
+                      [(ngModel)]="searchForm.numeroPiece"
+                      name="numeroPiece"
+                      placeholder="RC-2024-001"
+                      required>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label class="form-label">Date d'Opération</label>
+                    <input 
+                      type="date" 
+                      class="form-input"
+                      [(ngModel)]="searchForm.dateOperation"
+                      name="dateOperation">
+                  </div>
+                  
+                  <div class="form-group">
+                    <button type="submit" class="btn btn-primary" [disabled]="searching">
+                      <span *ngIf="searching" class="loading-spinner"></span>
+                      <svg *ngIf="!searching" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                      </svg>
+                      {{ searching ? 'Recherche...' : 'Rechercher' }}
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Affichage du reçu trouvé -->
+        <div class="recu-section" *ngIf="recuTrouve">
+          <div class="card">
+            <div class="card-header">
+              <div class="flex items-center justify-between">
+                <h2 class="section-title">Reçu Trouvé</h2>
+                <span [class]="'status-badge status-' + recuTrouve.statut">
+                  {{ recuTrouve.statut | titlecase }}
+                </span>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="recu-details">
+                <div class="detail-grid">
+                  <div class="detail-item">
+                    <label>Numéro de Reçu</label>
+                    <span class="detail-value">{{ recuTrouve.numeroRecu }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <label>Date d'Opération</label>
+                    <span class="detail-value">{{ recuTrouve.dateOperation | date:'dd/MM/yyyy' }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <label>Client</label>
+                    <span class="detail-value">{{ recuTrouve.clientPrenom }} {{ recuTrouve.clientNom }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <label>Montant</label>
+                    <span class="detail-value amount">{{ recuTrouve.montant | currency:'EUR':'symbol':'1.2-2':'fr' }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <label>Type d'Opération</label>
+                    <span class="detail-value">{{ getTypeLabel(recuTrouve.typeOperation) }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <label>Mode de Règlement</label>
+                    <span class="detail-value">{{ getModeLabel(recuTrouve.modeReglement) }}</span>
+                  </div>
+                </div>
+                
+                <div class="detail-description">
+                  <label>Description</label>
+                  <p class="detail-value">{{ recuTrouve.description }}</p>
+                </div>
+
+                <div class="action-section" *ngIf="recuTrouve.statut === 'valide'">
+                  <div class="form-group">
+                    <label class="form-label">Motif d'Extourne *</label>
+                    <textarea 
+                      class="form-input"
+                      rows="3"
+                      [(ngModel)]="motifExtourne"
+                      placeholder="Veuillez préciser le motif de l'extourne..."
+                      required>
+                    </textarea>
+                  </div>
+                  
+                  <div class="action-buttons">
+                    <button 
+                      class="btn btn-error"
+                      (click)="confirmerExtourne()"
+                      [disabled]="!motifExtourne || extourning">
+                      <span *ngIf="extourning" class="loading-spinner"></span>
+                      <svg *ngIf="!extourning" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+                      </svg>
+                      {{ extourning ? 'Extourne en cours...' : 'Extourner le Reçu' }}
+                    </button>
+                    <button class="btn btn-secondary" (click)="annulerRecherche()">
+                      Annuler
+                    </button>
+                  </div>
+                </div>
+
+                <div class="warning-section" *ngIf="recuTrouve.statut !== 'valide'">
+                  <div class="warning-message">
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                      <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                    </svg>
+                    <span>Ce reçu ne peut pas être extourné car il a déjà été {{ recuTrouve.statut }}.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message si aucun reçu trouvé -->
+        <div class="no-result-section" *ngIf="searchPerformed && !recuTrouve && !searching">
+          <div class="card">
+            <div class="card-body text-center">
+              <div class="no-result-icon">
+                <svg width="64" height="64" fill="currentColor" viewBox="0 0 16 16">
+                  <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/>
+                </svg>
+              </div>
+              <h3>Aucun Reçu Trouvé</h3>
+              <p>Aucun reçu ne correspond aux critères de recherche spécifiés.</p>
+              <button class="btn btn-secondary" (click)="annulerRecherche()">
+                Nouvelle Recherche
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Historique des extournes -->
+        <div class="history-section">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="section-title">Historique des Extournes</h2>
+            </div>
+            <div class="card-body">
+              <div *ngIf="loadingHistory" class="text-center py-8">
+                <div class="loading-spinner mx-auto mb-4"></div>
+                <p>Chargement de l'historique...</p>
+              </div>
+
+              <div *ngIf="!loadingHistory && extournes.length === 0" class="text-center py-8">
+                <p class="text-muted">Aucune extourne enregistrée</p>
+              </div>
+
+              <div *ngIf="!loadingHistory && extournes.length > 0" class="table-container">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Numéro Original</th>
+                      <th>Montant</th>
+                      <th>Motif</th>
+                      <th>Utilisateur</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let extourne of extournes">
+                      <td>{{ extourne.dateExtourne | date:'dd/MM/yyyy' }}</td>
+                      <td class="font-mono">{{ extourne.numeroPieceOriginal }}</td>
+                      <td class="amount">{{ extourne.montantExtourne | currency:'EUR':'symbol':'1.2-2':'fr' }}</td>
+                      <td>{{ extourne.motifExtourne }}</td>
+                      <td>{{ extourne.utilisateurExtourne }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>

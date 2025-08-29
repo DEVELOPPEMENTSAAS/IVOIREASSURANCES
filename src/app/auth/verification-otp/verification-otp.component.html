@@ -1,0 +1,33 @@
+<!-- loader.component.html -->
+<div id="loader">
+    <div class="spinner"></div>
+  </div>
+
+
+
+<div class="otp-container" [class.hidden]="loading">
+  <div class="otp-card">
+    <div class="otp-header">
+      <div class="otp-icon">
+        <i class="fas fa-lock"></i>
+      </div>
+      <h2>Verification <span>Code</span></h2>
+      <p>Nous avons envoyé un code de vérification à 6 chiffres sur ton appareil</p>
+    </div>
+
+    <div class="otp-inputs" [class.shake]="isError">
+      <input type="text" maxlength="1" *ngFor="let item of otpArray; let i = index"
+             [(ngModel)]="otp[i]" (input)="focusNext($event, i)">
+    </div>
+
+    <button class="verify-btn" (click)="verifyOtp()">
+      Vérifier le code <i class="fas fa-arrow-right"></i>
+    </button>
+
+    <button class="resend-btn" (click)="resendCode()">
+      <i class="fas fa-redo"></i> Renvoyer le code
+    </button>
+
+    <p *ngIf="isError" class="error-msg">❌ Code incorrect, réessaie</p>
+  </div>
+</div>

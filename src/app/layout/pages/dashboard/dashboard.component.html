@@ -1,0 +1,213 @@
+<!-- Header -->
+<div class="header">
+  <div class="header-content">
+    <div class="header-left">
+      <div class="logo">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 3v18h18"/>
+          <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/>
+        </svg>
+      </div>
+      <div class="header-info">
+        <h1>Dashboard Performance</h1>
+        <p>Suivi en temps réel par produit</p>
+      </div>
+    </div>
+    
+    <div class="header-right">
+      <div class="last-update">
+        Dernière mise à jour: {{ lastUpdate | date:'HH:mm:ss' }}
+      </div>
+      <button class="refresh-btn" (click)="handleRefresh()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+          <path d="M21 3v5h-5"/>
+          <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+          <path d="M3 21v-5h5"/>
+        </svg>
+        Actualiser
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+  <!-- Filters -->
+  <div class="filter-bar">
+    <div class="filter-grid">
+      <!-- Période -->
+      <div class="filter-item">
+        <label class="filter-label">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          Période
+        </label>
+        <select [(ngModel)]="filters.period" (change)="onFiltersChange()" class="filter-select">
+          <option value="7d">7 jours</option>
+          <option value="30d">30 jours</option>
+          <option value="3m">3 mois</option>
+          <option value="1y">1 an</option>
+        </select>
+      </div>
+
+      <!-- Agence -->
+      <div class="filter-item">
+        <label class="filter-label">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 21h18"/>
+            <path d="M5 21V7l8-4v18"/>
+            <path d="M19 21V11l-6-4"/>
+          </svg>
+          Agence
+        </label>
+        <select [(ngModel)]="filters.agency" (change)="onFiltersChange()" class="filter-select">
+          <option value="Toutes">Toutes</option>
+          <option value="Paris Centre">Paris Centre</option>
+          <option value="Lyon">Lyon</option>
+          <option value="Marseille">Marseille</option>
+          <option value="Toulouse">Toulouse</option>
+        </select>
+      </div>
+
+      <!-- Utilisateur -->
+      <div class="filter-item">
+        <label class="filter-label">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          Utilisateur
+        </label>
+        <select [(ngModel)]="filters.user" (change)="onFiltersChange()" class="filter-select">
+          <option value="Tous">Tous</option>
+          <option value="Marie Dupont">Marie Dupont</option>
+          <option value="Pierre Martin">Pierre Martin</option>
+          <option value="Sophie Leroy">Sophie Leroy</option>
+        </select>
+      </div>
+
+      <!-- Produit -->
+      <div class="filter-item">
+        <label class="filter-label">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <rect x="7" y="7" width="10" height="10" rx="1" ry="1"/>
+          </svg>
+          Produit
+        </label>
+        <select [(ngModel)]="filters.product" (change)="onFiltersChange()" class="filter-select">
+          <option value="Tous">Tous</option>
+          <option value="Automobile">Automobile</option>
+          <option value="Santé">Santé</option>
+          <option value="Prévoyance">Prévoyance</option>
+          <option value="Habitation">Habitation</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card" *ngFor="let kpi of kpiData">
+      <div class="kpi-header">
+        <div class="kpi-icon">{{ getIconSymbol(kpi.icon) }}</div>
+        <div class="kpi-trend">
+          <svg *ngIf="kpi.trend === 'up'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="trend-up">
+            <polyline points="22,7 13.5,15.5 8.5,10.5 2,17"/>
+            <polyline points="16,7 22,7 22,13"/>
+          </svg>
+          <svg *ngIf="kpi.trend === 'down'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="trend-down">
+            <polyline points="22,17 13.5,8.5 8.5,13.5 2,7"/>
+            <polyline points="16,17 22,17 22,11"/>
+          </svg>
+          <svg *ngIf="kpi.trend === 'stable'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="trend-stable">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          <span class="trend-value" [ngClass]="getTrendClass(kpi.trend)">
+            {{ kpi.change > 0 ? '+' : '' }}{{ kpi.change }}%
+          </span>
+        </div>
+      </div>
+      
+      <h3 class="kpi-title">{{ kpi.title }}</h3>
+      <p class="kpi-value">{{ kpi.value }}</p>
+    </div>
+  </div>
+
+  <!-- Charts Section -->
+  <div class="charts-grid">
+    <!-- Premium Trend Chart -->
+    <div class="chart-container chart-full">
+      <h3 class="chart-title">Évolution des Primes Mensuelles</h3>
+      <div class="chart-wrapper">
+        <canvas #premiumChart></canvas>
+      </div>
+    </div>
+
+    <!-- Claims Ratio Chart -->
+    <div class="chart-container">
+      <h3 class="chart-title">Taux de Sinistralité par Produit</h3>
+      <div class="chart-wrapper">
+        <canvas #claimsChart></canvas>
+      </div>
+    </div>
+
+    <!-- Contracts Bar Chart -->
+    <div class="chart-container">
+      <h3 class="chart-title">Évolution des Contrats</h3>
+      <div class="chart-wrapper">
+        <canvas #contractsChart></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Performance Table -->
+  <div class="table-container">
+    <div class="table-header">
+      <h3>Performance par Produit</h3>
+    </div>
+    
+    <div class="table-wrapper">
+      <table class="products-table">
+        <thead>
+          <tr>
+            <th class="text-left">Produit</th>
+            <th class="text-right">Primes</th>
+            <th class="text-right">Contrats</th>
+            <th class="text-right">Sinistres</th>
+            <th class="text-right">Taux</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let product of productsData" class="table-row">
+            <td>
+              <div class="product-cell">
+                <div class="product-color" [style.background-color]="product.color"></div>
+                <span class="product-name">{{ product.name }}</span>
+              </div>
+            </td>
+            <td class="text-right font-medium">
+              {{ formatCurrency(product.premiums) }}
+            </td>
+            <td class="text-right">
+              {{ product.contracts  }}
+            </td>
+            <td class="text-right">
+              {{ product.claims }}
+            </td>
+            <td class="text-right">
+              <span class="ratio-badge" [ngClass]="getRatioClass(product.claimsRatio)">
+                {{ product.claimsRatio }}%
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

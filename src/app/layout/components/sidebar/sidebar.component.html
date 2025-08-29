@@ -1,0 +1,44 @@
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar" aria-label="Navigation latérale">
+    <div class="brand">
+      <div class="logo">Ivoire</div>
+      <span class="label">Assurance</span>
+      <button class="toggle" id="toggleCompact" aria-label="Réduire/étendre le menu">
+        <i class="fa-solid fa-angles-left"></i>
+      </button>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-title">Principal</div>
+      <nav class="nav">
+        <a class="active" (click)="$event.preventDefault(); redirectToCore('/dashboard')"><i class="icon fa-solid fa-house"></i><span class="label">Tableau de bord</span></a>
+        <a  (click)="$event.preventDefault(); redirectToCore('/contrats/Contrats')"><i class="icon fa-solid fa-magnifying-glass"></i><span class="label">Rechercher un contrat</span></a>
+        <a href="#"><i class="icon fa-regular fa-bell"></i><span class="label">Notifications</span></a>
+        <a href="#"><i class="icon fa-solid fa-flag"></i><span class="label">Objectifs</span></a>
+      </nav>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-title">Gestion des dossiers</div>
+      <nav class="nav">
+        <a (click)="$event.preventDefault(); redirectToCore('/contrats/Contrats')"><i class="icon fa-solid fa-file-contract"></i><span class="label">Contrats</span></a>
+        <a (click)="$event.preventDefault(); redirectToCore('/users/creation')" ><i class="icon fa-solid fa-user-shield"></i><span class="label">Clients assurés</span></a>
+      </nav>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-title">Suivi et rapports</div>
+      <nav class="nav">
+       <a href="#" (click)="$event.preventDefault(); redirectToCore('/Sinistres/Sinistres')" ><i class="icon fa-solid fa-clipboard-list"></i><span class="label">Sinistres</span></a>
+        <a (click)="$event.preventDefault(); redirectToCore('/comptabilite/ReglementsDePrimeAssurance')" ><i class="icon fa-solid fa-chart-line"></i><span class="label">Comptabilités</span></a>
+        <a (click)="$event.preventDefault(); redirectToCore('/params/Parametres')" ><i class="icon fa-regular fa-lightbulb"></i><span class="label">Parametres</span></a>
+        <a (click)="$event.preventDefault(); redirectToCore('/Journee/CreationJournee')" ><i class="icon fa-solid fa-bullseye"></i><span class="label">Securuité </span></a>
+        <a (click)="$event.preventDefault(); redirectToCore('/Reporting/ReportingClients')" ><i class="icon fa-regular fa-map"></i><span class="label">Reporting</span></a>
+      </nav>
+    </div>
+      <div class="nav-group">
+        <button class="btn btn-logout" (click)="onLogout()" style="width:100%;margin-top:20px;">
+          <i class="fa-solid fa-right-from-bracket"></i> <span class="label">Déconnexion</span>
+        </button>
+      </div>
+  </aside>
