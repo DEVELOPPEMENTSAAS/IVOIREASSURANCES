@@ -19,10 +19,13 @@ import { ReportingClientsComponent } from './pages/reporting/reporting-clients/r
 import { ReeditionComponent } from './pages/gestioncomptabilites/reedition/reedition.component';
 import { ExtourneComponent } from './pages/gestioncomptabilites/extourne/extourne.component';
 import { ReactiveFormsModule } from '@angular/forms'; // <- IMPORTANT
-
+import { FilterModulesPipe } from '../shared/pipes/filter-modules.pipe';
+import { UserFilterPipe } from '../shared/pipes/user-filter.pipe';
 @NgModule({
   declarations: [
     LayoutComponent,
+    FilterModulesPipe,
+    UserFilterPipe,
     MainLayoutComponent,
     HeaderComponent,
     SidebarComponent,

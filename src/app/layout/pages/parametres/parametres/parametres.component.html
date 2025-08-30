@@ -1,1 +1,454 @@
-<p>parametres works!</p>
+<!-- Topbar -->
+<div class="topbar">
+  <button class="burger" aria-label="Menu" (click)="toggleSidebar()">☰</button>
+  <strong style="white-space:nowrap">iAssurance — Paramètres</strong>
+  <div class="search">
+    <span>🔎</span>
+    <input type="search" placeholder="Rechercher un paramètre…" [(ngModel)]="searchTerm">
+  </div>
+  <div class="row">
+    <button class="btn ghost" title="Aide">❓</button>
+    <button class="btn ghost" title="Notifications">🔔</button>
+    <div class="avatar" title="Profil">EA</div>
+  </div>
+</div>
+
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <h4>Paramétrage</h4> 
+    <button
+        *ngFor="let module of modules | filterModules:searchTerm"
+        class="nav-btn"
+        [class.active]="activeSection === module.key"
+        (click)="setSection(module.key)">
+        <span class="icon">{{ module.icon }}</span> {{ module.label }}
+    </button>
+  </aside>
+  <div class="sidebar-scrim" id="scrim" (click)="toggleSidebar()"></div>
+
+  <!-- Main -->
+  <main class="main">
+    <section class="page">
+        <div *ngIf="activeSection === 'contrats'">
+             <h1>Contrats & Produits</h1>
+
+            <div class="card">
+                <div class="grid">
+                <div class="col-6">
+                    <label for="typeAssurance">Type d’assurance</label>
+                    <select id="typeAssurance" class="field">
+                    <option>Auto</option>
+                    <option>Santé</option>
+                    <option>Vie</option>
+                    <option>Habitation</option>
+                    <option>Voyage</option>
+                    </select>
+                </div>
+                <div class="col-6">
+                    <label for="modePaiement">Mode de paiement par défaut</label>
+                    <select id="modePaiement" class="field">
+                    <option>Immatriculation</option>
+                    <option>Beneficiaires</option>
+                    <option>Numéro police</option>
+                    <option>Date d'effet</option>
+                    </select>
+                </div>
+                <br>
+                <div class="col-12">
+                    <label>Champs obligatoires</label>
+                    <div class="chips">
+                    <span class="chip">Immatriculation</span>
+                    <span class="chip">Bénéficiaires</span>
+                    <span class="chip">Numéro police</span>
+                    <span class="chip">Date d’effet</span> 
+                    </div>
+                </div>
+                 
+                <div class="col-4" style="margin-top:16px">
+                    <label>Franchise</label>
+                    <div class="row">
+                    <div class="toggle on" data-toggle></div>
+                    <span class="muted">Activer la gestion de franchise</span>
+                    </div>
+                </div>
+                <div class="col-4" style="margin-top:16px">
+                    <label>Paiement mensuel</label>
+                    <div class="row">
+                    <div class="toggle on" data-toggle></div>
+                    <span class="muted">Autoriser les échéanciers</span>
+                    </div>
+                </div>
+                <div class="col-4" style="margin-top:16px">
+                    <label>Résiliation anticipée</label>
+                    <div class="row">
+                    <div class="toggle" data-toggle></div>
+                    <span class="muted">Permettre le prorata temporis</span>
+                    </div>
+                </div>
+                </div>
+            </div>
+
+
+            <h3 class="section-title">Règles de tarification</h3>
+            <div class="card">
+                <div class="grid">
+                <div class="col-6">
+                    <label for="basePrime">Prime de base</label>
+                    <input id="basePrime" class="field" type="number" placeholder="Ex : 25000" />
+                </div>
+                <div class="col-6">
+                    <label for="commission">Commission agent (%)</label>
+                    <input id="commission" class="field" type="number" placeholder="Ex : 10" />
+                </div>
+                <div class="col-12">
+                    <label for="regle">Règle additionnelle</label>
+                    <input id="regle" class="field" type="text" placeholder="Ex : +5% si risque élevé…" />
+                </div>
+                </div>
+            </div>
+        </div>
+      
+      
+
+
+      <!-- SECTION : Utilisateurs & Rôles -->
+       <!--<div *ngIf="activeSection === 'utilisateurs'">
+           <div class="card">
+            <h2>Utilisateurs & Rôles</h2>
+            <div class="col-12">
+                <label>Rôle par défaut</label>
+                <div class="chips">
+                <span class="chip">Administrateur</span>
+                <span class="chip">Caissier</span>
+                <span class="chip">Agent commercial</span>
+                </div>
+            </div><br>
+            <div class="form-group">
+                <label>Activer validation en 2 étapes</label>
+                <input type="checkbox" class="field">
+            </div>
+          </div>
+
+       </div>-->
+       <!-- ...existing code... -->
+        <div *ngIf="activeSection === 'utilisateurs'">
+        <div class="card">
+            <h2>Utilisateurs & Rôles</h2>
+            <div class="grid">
+            <div class="col-6">
+                <label>Agence</label>
+                <input type="text" class="field" [(ngModel)]="searchAgence" placeholder="Agence">
+            </div>
+            <div class="col-6">
+                <label>Nom</label>
+                <input type="text" class="field" [(ngModel)]="searchNom" placeholder="Nom">
+            </div>
+            <div class="col-12">
+                <label>Prénom</label>
+                <input type="text" class="field" [(ngModel)]="searchPrenom" placeholder="Prénom">
+            </div>
+            <div class="col-6">
+                <label>Date début</label>
+                <input type="date" class="field" [(ngModel)]="searchDebut">
+            </div>
+            <div class="col-6">
+                <label>Date fin</label>
+                <input type="date" class="field" [(ngModel)]="searchFin">
+            </div>
+            </div>
+            <br>
+            <button class="btn" style="color: rgb(75, 135, 148);" type="button" (click)="searchUsers()">Rechercher</button>
+            <br>
+            <div><br>
+            <label>Liste des utilisateurs</label>
+            <div class="user-list">
+                <div
+                *ngFor="let user of paginatedUsers | userFilter:searchAgence:searchNom:searchPrenom:searchDebut:searchFin"
+                class="user-row"
+                [class.selected]="selectedUser === user"
+                (click)="selectUser(user)">
+                <div>{{ user.nom }} {{ user.prenom }}</div>
+                <div class="muted">{{ user.agence }}</div>
+                <div class="muted">{{ user.dateDebut | date }} - {{ user.dateFin | date }}</div>
+                </div>
+            </div><br>
+            <!-- Pagination controls 
+             <div *ngIf="paginatedUsers.length === 0" class="muted">Aucun utilisateur trouvé.</div>
+             <div *ngIf="paginatedUsers.length > 0">
+               
+                <div class="pagination">
+                    <button class="btn ghost" (click)="prevPage()" [disabled]="currentPage === 1">Précédent</button>
+                    <span>Page {{ currentPage }} / {{ totalPages }}</span>
+                    <button class="btn ghost" (click)="nextPage()" [disabled]="currentPage === totalPages">Suivant</button>
+                </div>
+             </div>-->
+            
+            </div>
+            <br>
+            <!--<div *ngIf="selectedUser">
+                <h3>Droits pour {{ selectedUser.nom }} {{ selectedUser.prenom }}</h3>
+                <div class="chips">
+                    <span
+                    class="chip"
+                    *ngFor="let droit of ProfilUtilisateurs"
+                    [class.selected]="selectedUser.ProfilUtilisateurs?.includes(droit)"
+                    (click)="toggleDroit(selectedUser, droit)">
+                    {{ droit }}
+                    </span>
+                </div>
+                <div class="muted" style="margin-top:8px">Sélectionnez les droits à accorder selon le profil.</div>
+            </div>-->
+            <div *ngIf="selectedUser">
+                <h3>Droits pour {{ selectedUser.nom }} {{ selectedUser.prenom }}</h3>
+                <div class="form-group">
+                    <label>Profil</label>
+                    <select class="field" [(ngModel)]="selectedProfil" (change)="selectedUser.ProfilUtilisateurs = [selectedProfil.nom]; selectUser(selectedUser)">
+                    <option *ngFor="let profil of ProfilUtilisateurs" [ngValue]="profil">{{ profil.nom }}</option>
+                    </select>
+                </div>
+                <div class="chips" *ngIf="selectedProfil">
+                    <span
+                    class="chip"
+                    *ngFor="let droit of selectedProfil.droits"
+                    [class.selected]="selectedUserDroits.includes(droit)"
+                    (click)="toggleDroit(droit)">
+                    {{ droit }}
+                    </span>
+                </div><br><br><br>
+                <div class="muted" style="margin-top:8px">Sélectionnez les droits à accorder selon le profil.</div>
+                </div>
+            </div>
+        </div>
+       <!-- ...existing code... -->
+        
+        <!-- SECTION : Tarification & Commissions -->
+          <div *ngIf="activeSection === 'tarification'">
+                <div class="card">
+                    <h2>Tarification & Commissions</h2>
+                    <div class="form-group">
+                        <label>Marge entreprise (%)</label>
+                        <input type="number" placeholder="Ex: 15" class="field">
+                    </div><br>
+                    <div class="form-group">
+                        <label>Bonus fidélité (%)</label>
+                        <input type="number" placeholder="Ex: 5" class="field">
+                    </div>
+                </div>
+          </div>
+        
+        <!-- SECTION : États & Rapports -->
+       <div *ngIf="activeSection === 'etats'">
+            <div class="card">
+                <h2>États & Rapports</h2><br>
+                <div class="col-12">
+                <label>Formats sélectionnés</label>
+                <div class="chips">
+                    <span
+                    class="chip"
+                    *ngFor="let format of ['PDF', 'Word', 'Excel']"
+                    [class.selected]="selectedFormats.includes(format)"
+                    (click)="toggleFormat(format)"
+                    style="cursor:pointer"
+                    >
+                    {{ format }}
+                    </span>
+                </div>
+                </div>
+            </div>
+        </div>
+        
+
+        <!-- SECTION : Notifications & Alertes -->
+         <div *ngIf="activeSection === 'notifications'">
+                   <div class="card">
+                        <h2>Notifications & Alertes</h2>
+                        <div class="form-group">
+                            <label>Activer les emails automatiques</label>
+                            <input type="checkbox" class="field">
+                        </div><br>
+                        <div class="form-group">
+                            <label>Activer les SMS</label>
+                            <input type="checkbox" class="field">
+                        </div>
+                    </div>
+         </div>
+        
+
+        <!-- SECTION : Localisation & Devises -->
+          <div *ngIf="activeSection === 'localisation'">
+                <div class="card">
+                    <h2>Localisation & Devises</h2><br>
+                    <div class="col-12">
+                    <label>Localisation & Devises</label>
+                    <div class="chips">
+                        <span
+                        class="chip"
+                        *ngFor="let devise of ['FCFA', 'USD', 'EUR']"
+                        [class.selected]="selectedDevises.includes(devise)"
+                        (click)="toggleDevise(devise)"
+                        style="cursor:pointer"
+                        >
+                        {{ devise }}
+                        </span>
+                    </div>
+                    </div>
+                </div>
+         </div>
+           
+          <div *ngIf="activeSection === 'profil'">
+            <div class="card">
+                <h2>Gestion des profils</h2>
+                <form (ngSubmit)="addProfil()">
+                <div class="form-group">
+                    <label>Nom du profil</label>
+                    <input type="text" class="field" [(ngModel)]="newProfilNom" name="profilNom" required>
+                </div>
+                <!--<div class="form-group">
+                    <label>Descriptions</label>
+                    <div *ngFor="let desc of newProfilDescriptions; let i = index" class="row" style="gap:8px; align-items:center;">
+                    <input type="text" class="field" [(ngModel)]="newProfilDescriptions[i]" [name]="'desc'+i" placeholder="Description" maxlength="100">
+                    <button type="button" class="btn ghost" (click)="removeDescription(i)" title="Supprimer">🗑️</button>
+                    <button *ngIf="i === newProfilDescriptions.length - 1" type="button" class="btn ghost" (click)="addDescription()" title="Ajouter">➕</button>
+                    </div>
+                    <div *ngIf="newProfilDescriptions.length === 0">
+                    <button type="button" class="btn btn-sm" (click)="addDescription()">Ajouter une description</button>
+                    </div>
+                </div>-->
+                <button class="btn" style="color: rgb(14, 69, 125);" type="submit">Enregistrer le profil</button>
+                </form>
+                <br>
+                <h3>Liste des profils enregistrés</h3>
+                <ul>
+                <li *ngFor="let profil of Profils">
+                    <strong>{{ profil.nom }}</strong> — <span class="muted">{{ profil.description.join(', ') }}</span>
+                </li>
+                </ul>
+            </div>
+          </div>
+
+        <div *ngIf="activeSection === 'exercice'">
+            <div class="card">
+                <h2>Exercice & Journée</h2>
+                <div class="form-group">
+                <label>Exercice</label>
+                <select class="field" [(ngModel)]="selectedExercice">
+                    <option *ngFor="let ex of exercices" [ngValue]="ex">{{ ex.nom }}</option>
+                </select>
+                </div>
+                <div class="form-group">
+                <label>Créer une journée</label>
+                <input type="date" class="field" [(ngModel)]="newJourneeDate">
+                
+                </div><br>
+                <button class="btn" style="color: rgb(14, 69, 125);" type="button" (click)="addJournee()">Créer</button>
+                <br>
+                <h3>Journées de l'exercice</h3>
+                <ul>
+                <li *ngFor="let journee of selectedExercice?.journees">
+                    {{ journee.date }}
+                    <button class="btn ghost" *ngIf="!journee.ouverte" (click)="ouvrirJournee(journee)">Ouvrir</button>
+                    <button class="btn ghost" *ngIf="journee.ouverte" (click)="fermerJournee(journee)">Fermer</button>
+                    <span class="muted" *ngIf="journee.ouverte">— Ouverte</span>
+                    <span class="muted" *ngIf="!journee.ouverte">— Fermée</span>
+                </li>
+                </ul>
+            </div>
+            </div>
+
+        <!-- SECTION : Paramètres généraux -->
+         <div *ngIf="activeSection === 'generaux'">
+                <div class="card">
+                    <h2>Paramètres généraux</h2>
+                    <div class="form-group">
+                    <label>Nom de l’entreprise</label>
+                    <input type="text" placeholder="Ex: Assure CI" class="field">
+                    </div>
+                    <br>
+                     <div class="form-group">
+                            <label class="form-label">Logo de l’entreprise</label>
+                            <div class="photo-upload-container">
+                                <div class="photo-preview">
+                                <img *ngIf="entrepriseForm.photo"  [alt]="entreprise">
+                                <div *ngIf="!entrepriseForm.photo" class="photo-placeholder">
+                                    <svg width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                                    <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+                                    </svg>
+                                    <p class="text-xs mt-2">Aucune photo</p>
+                                </div>
+                                </div>
+                                 <div class="flex gap-2">
+                                    <button type="button" class="btn btn-sm btn-secondary photo-upload-btn" (click)="photoInput.click()">
+                                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                                        <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/>
+                                        </svg>
+                                        Choisir une photo
+                                        <input #photoInput type="file" accept="image/*" >
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-error" *ngIf="entrepriseForm.photo" >
+                                        Supprimer
+                                    </button>
+                                    </div>
+                            </div>
+                        </div>
+
+
+                    <br><br><br>
+                    <div class="form-group">
+                    <label>Palette de couleurs du logiciel</label>
+                    <div class="palette-row">
+                        <span
+                        *ngFor="let color of palette"
+                        class="palette-color"
+                        [style.background]="color"
+                        [class.selected]="selectedColor === color"
+                        (click)="changeColor(color)"
+                        title="{{ color }}"
+                        ></span>
+                    </div>
+                    </div>
+                    <div class="form-group">
+                    <small>La couleur sélectionnée sera appliquée aux cartes et boutons.</small>
+                    </div>
+                </div>
+            </div>
+        
+       
+      <div class="actions">
+        <div class="row" style="justify-content:flex-end; padding:12px 0;">
+          <button class="btn ghost" type="button">Réinitialiser</button>
+          <button class="btn" style="color: rgb(148, 75, 75);" type="button">Appliquer immédiatement</button>
+          <button class="btn primary" type="button">Sauvegarder</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Right panel -->
+  <aside class="panel-right">
+    <div class="tenant">
+      <div class="avatar">IA</div>
+      <div>
+        <div style="font-weight:700">Ivoire Assurance </div>
+        <div style="font-size:12px; color:#6b7280">Tenant actif • Prod</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Compte administrateur</h3>
+      <div class="row" style="margin:10px 0 16px">
+        <div class="avatar" style="width:36px;height:36px">BE</div>
+        <div>
+          <div>bolatykouassieuloge@entreprise.ci</div>
+          <div style="font-size:12px; color:#6b7280">Rôle : Super Admin</div>
+        </div>
+      </div>
+      <div class="row">
+        <button class="btn" style="color: rgb(148, 75, 75);">Changer le mot de passe</button>
+      </div>
+    </div>
+
+  </aside>
+</div>
