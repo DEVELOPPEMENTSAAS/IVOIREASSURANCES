@@ -41,6 +41,13 @@ export class ReportingClientsComponent {
       t.addEventListener('click', ()=> t.classList.toggle('on'));
     });
   }
+
+    toggleSidebar(){
+    const sb = document.getElementById('sidebar');
+      const scrim = document.getElementById('scrim');
+      sb?.classList.toggle('open');
+      scrim?.classList.toggle('show');
+  }
     ngOnInit(): void {
     // ici tu pourras charger des données dynamiques
    
